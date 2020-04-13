@@ -141,6 +141,7 @@ public class MakingDeliveriesArquillianTest extends AbstractDeliveryTest impleme
         Package package1 = new Package();
         package1.setWeight(10.0);
         package1.setProvider(pro1);
+        package1.setSecret_number("AXXXX2");
         entityManager.persist(package1);
 
         Delivery delivery1 = new Delivery();
@@ -188,11 +189,13 @@ public class MakingDeliveriesArquillianTest extends AbstractDeliveryTest impleme
         Package package1 = new Package();
         package1.setWeight(10.0);
         package1.setProvider(pro1);
+        package1.setSecret_number("AXXXX4");
         entityManager.persist(package1);
 
         Package package2 = new Package();
         package2.setWeight(10.0);
         package2.setProvider(pro1);
+        package2.setSecret_number("AXXXX4");
         entityManager.persist(package2);
         pro1.add(package2);
 
@@ -250,12 +253,14 @@ public class MakingDeliveriesArquillianTest extends AbstractDeliveryTest impleme
         Package package1 = new Package();
         package1.setWeight(10.0);
         package1.setProvider(pro1);
+        package1.setSecret_number("AXXXX8");
         entityManager.persist(package1);
 
 
         Package package2 = new Package();
         package2.setWeight(15.0);
         package2.setProvider(pro1);
+        package2.setSecret_number("AXXX45");
         entityManager.persist(package2);
         pro1.add(package1);
         pro1.add(package2);
@@ -273,12 +278,14 @@ public class MakingDeliveriesArquillianTest extends AbstractDeliveryTest impleme
         Package package3 = new Package();
         package3.setWeight(20.0);
         package3.setProvider(pro2);
+        package3.setSecret_number("AXXyX2");
         entityManager.persist(package3);
 
 
         Package package4 = new Package();
         package4.setWeight(25.0);
         package4.setProvider(pro2);
+        package4.setSecret_number("AXXXU2");
         entityManager.persist(package4);
         pro2.add(package3);
         pro2.add(package4);
