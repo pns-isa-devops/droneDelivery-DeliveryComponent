@@ -12,6 +12,7 @@ import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import utils.MyDate;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
@@ -29,6 +30,7 @@ public class DeliveryBeanTest extends AbstractDeliveryTest {
     @PersistenceContext
     private EntityManager entityManager;
     @EJB(name = "delivery-stateless") private DeliverySchedule deliverySchedule;
+    @EJB(name = "delivery-stateless") private NextDeliveryInterface nextDeliveryInterface;
     @Inject
     private UserTransaction utx;
 
@@ -36,12 +38,15 @@ public class DeliveryBeanTest extends AbstractDeliveryTest {
     private Package package1;
     private Provider pro1;
     private Delivery delivery1;
+    private Delivery delivery2;
 
     @After
     public void cleanUp() throws SystemException, NotSupportedException, HeuristicRollbackException, HeuristicMixedException, RollbackException {
         utx.begin();
         delivery1 = entityManager.merge(delivery1);
         entityManager.remove(delivery1);
+        delivery2 = entityManager.merge(delivery2);
+        entityManager.remove(delivery2);
 
         package1 = entityManager.merge(package1);
         entityManager.remove(package1);
@@ -52,6 +57,7 @@ public class DeliveryBeanTest extends AbstractDeliveryTest {
         c = entityManager.merge(c);
         entityManager.remove(c);
 
+        MyDate.date_now = "17/04/2020";
         utx.commit();
     }
 
@@ -104,7 +110,9 @@ public class DeliveryBeanTest extends AbstractDeliveryTest {
     }*/
 
     @Test
-    public void tesst_with_date(){
+    public void tesst_with_date() throws Exception {
+
+        MyDate.date_now = "17/04/2020";
 
         c = new Customer("Pm", "adresse1");
         entityManager.persist(c);
@@ -125,6 +133,16 @@ public class DeliveryBeanTest extends AbstractDeliveryTest {
         delivery1.setDeliveryDate("17/04/2020");
         entityManager.persist(delivery1);
 
-        assertEquals(1,deliverySchedule.get_deliveries().size());
+        delivery2 = new Delivery();
+        delivery2.setCustomer(c);
+        delivery2.setPackageDelivered(package1);
+        delivery2.setDeliveryDate("18/04/2020");
+        entityManager.persist(delivery2);
+
+        assertEquals(2,deliverySchedule.get_deliveries().size());
+        assertEquals("17/04/2020",nextDeliveryInterface.getNextDelivery().getDeliveryDate());
+
+        MyDate.date_now = "18/04/2020";
+        assertEquals("18/04/2020",nextDeliveryInterface.getNextDelivery().getDeliveryDate());
     }
 }

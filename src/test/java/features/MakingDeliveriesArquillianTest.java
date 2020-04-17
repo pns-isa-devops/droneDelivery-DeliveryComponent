@@ -2,37 +2,28 @@ package features;
 
 import arquillian.AbstractDeliveryTest;
 import cucumber.api.CucumberOptions;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
 import cucumber.api.java.fr.Alors;
 import cucumber.api.java.fr.Et;
 import cucumber.api.java.fr.Quand;
 import cucumber.runtime.arquillian.CukeSpace;
-import cucumber.runtime.arquillian.api.Features;
-import fr.unice.polytech.isa.dd.DeliveryBean;
-import fr.unice.polytech.isa.dd.DeliveryInterface;
 import fr.unice.polytech.isa.dd.DeliverySchedule;
 import fr.unice.polytech.isa.dd.NextDeliveryInterface;
 import fr.unice.polytech.isa.dd.entities.Customer;
-import fr.unice.polytech.isa.dd.entities.Database;
 import fr.unice.polytech.isa.dd.entities.Delivery;
 import fr.unice.polytech.isa.dd.entities.Package;
 import fr.unice.polytech.isa.dd.entities.Provider;
 import io.cucumber.java8.Fr;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
-import org.joda.time.DateTime;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.runner.RunWith;
+import utils.MyDate;
 
 import javax.ejb.EJB;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.*;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -100,8 +91,9 @@ public class MakingDeliveriesArquillianTest extends AbstractDeliveryTest impleme
         Delivery delivery1 = new Delivery();
         delivery1.setCustomer(c);
         delivery1.setPackageDelivered(package1);
-        delivery1.setDeliveryDate("17/04/2020");
+        delivery1.setDeliveryDate("18/04/2020");
         entityManager.persist(delivery1);
+        MyDate.date_now = "18/04/2020";
     }
 
     @Et("l'employé regarde la prochaine livraison")
