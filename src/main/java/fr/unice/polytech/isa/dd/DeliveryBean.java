@@ -3,6 +3,7 @@ package fr.unice.polytech.isa.dd;
 import fr.unice.polytech.isa.dd.entities.Database;
 import fr.unice.polytech.isa.dd.entities.Delivery;
 import fr.unice.polytech.isa.dd.entities.Provider;
+import utils.MyDate;
 
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -12,10 +13,7 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -56,20 +54,23 @@ public class DeliveryBean implements DeliveryInterface, NextDeliveryInterface, D
     }
 
     @Override
-    public Delivery getNextDelivery() {
+    public Delivery getNextDelivery() throws Exception {
         /******* TEST ******/
         // Database.getInstance().initializeDatabase();
        // System.out.println("Passage dans mon service");
-        List<Delivery> deliveries = get_deliveries();
-        if (deliveries.size() !=0) {
-            for (Delivery del : deliveries
-            ) {
-                if (!del.getStatus()) {
-                    del.setStatus(true);
-                    return del;
+        List<Delivery> deliveries = all_deliveries();
+        if(deliveries != null){
+            if (deliveries.size() !=0) {
+                for (Delivery del : deliveries
+                ) {
+                    if (!del.getStatus()) {
+                        del.setStatus(true);
+                        return del;
+                    }
                 }
             }
         }
+
         return null;
     }
 
@@ -101,5 +102,16 @@ public class DeliveryBean implements DeliveryInterface, NextDeliveryInterface, D
         } catch (NoResultException nre){
             return null;
         }
+    }
+
+    private List<Delivery> all_deliveries() throws Exception {
+        if(!get_deliveries().isEmpty()){
+            List<Delivery> deliveriesList = get_deliveries();
+            MyDate myDate = new MyDate();
+            deliveriesList = deliveriesList.stream().filter(d->d.getDeliveryDate().equals(myDate.getDate_now())).collect(Collectors.toList());
+            deliveriesList.sort(Comparator.comparingInt(Delivery::getDeliveryBeginTimeInSeconds));
+            return deliveriesList;
+        }
+        return null;
     }
 }

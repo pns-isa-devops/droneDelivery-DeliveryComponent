@@ -7,5 +7,5 @@ import javax.ejb.Local;
 @Local
 public interface NextDeliveryInterface {
 
-    Delivery getNextDelivery();
+    Delivery getNextDelivery() throws Exception;
 }

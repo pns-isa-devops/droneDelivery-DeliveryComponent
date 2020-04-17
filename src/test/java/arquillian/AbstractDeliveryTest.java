@@ -15,6 +15,7 @@ import org.jboss.shrinkwrap.api.asset.ClassLoaderAsset;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.joda.time.DateTime;
+import utils.MyDate;
 
 import javax.ejb.EJB;
 import java.security.Provider;
@@ -29,6 +30,7 @@ public abstract class AbstractDeliveryTest {
         return ShrinkWrap.create(WebArchive.class)
                 .addAsWebInfResource(EmptyAsset.INSTANCE,"beans.xml")
                 .addPackage(Delivery.class.getPackage())
+                .addPackage(MyDate.class.getPackage())
                 .addPackage(NextDeliveryInterface.class.getPackage())
                 .addPackage(DeliveryInterface.class.getPackage())
                 .addPackage(DeliverySchedule.class.getPackage())
