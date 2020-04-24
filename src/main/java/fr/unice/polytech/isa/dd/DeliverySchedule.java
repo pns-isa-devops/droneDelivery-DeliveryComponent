@@ -12,4 +12,6 @@ public interface DeliverySchedule {
      List<Provider> providerList();
 
      List<Delivery> get_deliveries();
+
+     Delivery findDeliveryByPackageNumber(String deliveryDate, String deliveryhour) throws Exception;
 }
