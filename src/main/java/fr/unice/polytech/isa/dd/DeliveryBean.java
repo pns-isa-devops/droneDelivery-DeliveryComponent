@@ -5,6 +5,7 @@ import fr.unice.polytech.isa.dd.entities.Delivery;
 import fr.unice.polytech.isa.dd.entities.Provider;
 import utils.MyDate;
 
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -22,15 +23,16 @@ import java.util.stream.Collectors;
 public class DeliveryBean implements DeliveryInterface, NextDeliveryInterface, DeliverySchedule {
 
     @PersistenceContext private EntityManager entityManager;
+    @EJB(name = "provider-stateless") private ProviderFinder providerFinder;
 
     HashMap<Provider, List<Delivery>> deliveries_by_provider = new HashMap<>();
 
     @Override
-    public HashMap<Provider, List<Delivery>> getAllDayDeliveries() throws Exception {
+    public HashMap<Provider, List<Delivery>> getAllDayDeliveries(){
         deliveries_by_provider = new HashMap<>();
-        List<Provider> provider_set = providerList();
+        List<Provider> provider_set = providerFinder.providerList();
         for (Provider pro : provider_set) {
-            List<Delivery> alldeliveries = getAllDeliveries(pro.getId()).stream().filter(d->d.getDeliveryDate().equals(MyDate.date_now)).collect(Collectors.toList());
+            List<Delivery> alldeliveries = getAllDeliveriesOfAProvider(pro.getId()).stream().filter(d->d.getDeliveryDate().equals(MyDate.date_now)).collect(Collectors.toList());
             alldeliveries = alldeliveries.stream().filter(Delivery::getStatus).collect(Collectors.toList());
             if (!alldeliveries.isEmpty()) {
                 this.deliveries_by_provider.put(pro, alldeliveries);
@@ -40,7 +42,7 @@ public class DeliveryBean implements DeliveryInterface, NextDeliveryInterface, D
     }
 
     @Override
-    public List<Delivery> getAllDeliveries(int provider_id) {
+    public List<Delivery> getAllDeliveriesOfAProvider(int provider_id) {
         List<Delivery> deliveries = get_deliveries();
         List<Delivery> provider_deliveries = new ArrayList<>();
         for (Delivery dev : deliveries) {
@@ -52,8 +54,8 @@ public class DeliveryBean implements DeliveryInterface, NextDeliveryInterface, D
     }
 
     @Override
-    public Delivery getNextDelivery() throws Exception {
-        List<Delivery> deliveries = all_deliveries();
+    public Delivery getNextDelivery(){
+        List<Delivery> deliveries = all_deliveries_of_today();
         if(deliveries != null){
             if (deliveries.size() !=0) {
                 for (Delivery del : deliveries
@@ -66,21 +68,6 @@ public class DeliveryBean implements DeliveryInterface, NextDeliveryInterface, D
             }
         }
         return null;
-    }
-
-    @Override
-    public List<Provider> providerList(){
-        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Provider> criteria = builder.createQuery(Provider.class);
-        Root<Provider> root =  criteria.from(Provider.class);
-        criteria.select(root);
-        TypedQuery<Provider> query = entityManager.createQuery(criteria);
-        try {
-            List<Provider> toReturn = new ArrayList<>(query.getResultList());
-            return Optional.of(toReturn).get();
-        } catch (NoResultException nre){
-            return null;
-        }
     }
 
     @Override
@@ -98,7 +85,7 @@ public class DeliveryBean implements DeliveryInterface, NextDeliveryInterface, D
         }
     }
 
-    private List<Delivery> all_deliveries() {
+    private List<Delivery> all_deliveries_of_today() {
         if(!get_deliveries().isEmpty()){
             List<Delivery> deliveriesList = get_deliveries();
             deliveriesList = deliveriesList.stream().filter(d->d.getDeliveryDate().equals(MyDate.date_now)).collect(Collectors.toList());
@@ -109,7 +96,7 @@ public class DeliveryBean implements DeliveryInterface, NextDeliveryInterface, D
     }
 
     @Override
-    public Delivery findDeliveryByPackageNumber(String deliveryDate, String deliveryhour) throws Exception {
+    public Delivery findDeliveryByDateAndHour(String deliveryDate, String deliveryhour) throws Exception {
         MyDate myDate = new MyDate(deliveryDate,deliveryhour);
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Delivery> criteria = builder.createQuery(Delivery.class);
@@ -125,5 +112,13 @@ public class DeliveryBean implements DeliveryInterface, NextDeliveryInterface, D
         } catch (NoResultException nre){
             return null;
         }
+    }
+
+    @Override
+    public List<Delivery> all_deliveries_of_theDate(String date){
+        List<Delivery> deliveriesList = get_deliveries();
+        deliveriesList = deliveriesList.stream().filter(d->d.getDeliveryDate().equals(date)).collect(Collectors.toList());
+        deliveriesList.sort(Comparator.comparingInt(Delivery::getDeliveryBeginTimeInSeconds));
+        return deliveriesList;
     }
 }

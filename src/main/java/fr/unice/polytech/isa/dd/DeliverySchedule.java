@@ -8,10 +8,7 @@ import java.util.List;
 
 @Local
 public interface DeliverySchedule {
-
-     List<Provider> providerList();
-
      List<Delivery> get_deliveries();
-
-     Delivery findDeliveryByPackageNumber(String deliveryDate, String deliveryhour) throws Exception;
+     Delivery findDeliveryByDateAndHour(String deliveryDate, String deliveryhour) throws Exception;
+     List<Delivery> all_deliveries_of_theDate(String date);
 }

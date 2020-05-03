@@ -11,8 +11,6 @@ import java.util.Optional;
 
 @Local
 public interface DeliveryInterface {
-
-    //Changer le type de retour de ces fonctions en Livraison
-     HashMap<Provider,List<Delivery>> getAllDayDeliveries() throws Exception;
-     List<Delivery> getAllDeliveries(int provider_id);
+     HashMap<Provider,List<Delivery>> getAllDayDeliveries();
+     List<Delivery> getAllDeliveriesOfAProvider(int provider_id);
 }

@@ -1,9 +1,6 @@
 package arquillian;
 
-import fr.unice.polytech.isa.dd.DeliveryBean;
-import fr.unice.polytech.isa.dd.DeliveryInterface;
-import fr.unice.polytech.isa.dd.DeliverySchedule;
-import fr.unice.polytech.isa.dd.NextDeliveryInterface;
+import fr.unice.polytech.isa.dd.*;
 import fr.unice.polytech.isa.dd.entities.Customer;
 import fr.unice.polytech.isa.dd.entities.Database;
 import fr.unice.polytech.isa.dd.entities.Delivery;
@@ -35,6 +32,7 @@ public abstract class AbstractDeliveryTest {
                 .addPackage(DeliveryInterface.class.getPackage())
                 .addPackage(DeliverySchedule.class.getPackage())
                 .addPackage(DeliveryBean.class.getPackage())
+                .addPackage(ProviderFinder.class.getPackage())
                 .addPackage(Customer.class.getPackage())
                 .addPackage(Provider.class.getPackage())
                 .addPackage(Database.class.getPackage())

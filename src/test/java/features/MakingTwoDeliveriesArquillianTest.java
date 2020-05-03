@@ -9,6 +9,7 @@ import cucumber.runtime.arquillian.CukeSpace;
 import fr.unice.polytech.isa.dd.DeliveryInterface;
 import fr.unice.polytech.isa.dd.DeliverySchedule;
 import fr.unice.polytech.isa.dd.NextDeliveryInterface;
+import fr.unice.polytech.isa.dd.ProviderFinder;
 import fr.unice.polytech.isa.dd.entities.Customer;
 import fr.unice.polytech.isa.dd.entities.Delivery;
 import fr.unice.polytech.isa.dd.entities.Package;
@@ -40,6 +41,7 @@ public class MakingTwoDeliveriesArquillianTest extends AbstractDeliveryTest impl
     @EJB(name = "delivery-stateless") private NextDeliveryInterface nextDeliveryInterface;
     @EJB (name = "delivery-stateless") private DeliveryInterface deliveryInterface;
     @EJB(name = "delivery-stateless") private DeliverySchedule deliverySchedule;
+    @EJB(name = "provider-stateless") private ProviderFinder providerFinder;
     @Inject
     private UserTransaction utx;
 
@@ -74,9 +76,9 @@ public class MakingTwoDeliveriesArquillianTest extends AbstractDeliveryTest impl
         package4 = entityManager.merge(package4);
         entityManager.remove(package4);
 
-        int sizep = deliverySchedule.providerList().size();
+        int sizep = providerFinder.providerList().size();
         for(int i = 0; i < sizep; i++ ){
-            Provider provider = deliverySchedule.providerList().get(0);
+            Provider provider = providerFinder.providerList().get(0);
             entityManager.merge(provider);
             entityManager.remove(provider);
         }
@@ -153,7 +155,7 @@ public class MakingTwoDeliveriesArquillianTest extends AbstractDeliveryTest impl
     @Et("l'employé effectue les (\\d+) livraison de AG et une livraison de PK")
     public void lEmployéEffectueLesLivraisonDeAGEtUneLivraisonDePK(int arg0) throws Exception {
         deliveries = deliverySchedule.get_deliveries();
-        providers = deliverySchedule.providerList();
+        providers = providerFinder.providerList();
         nextDeliveryInterface.getNextDelivery();
         nextDeliveryInterface.getNextDelivery();
         nextDeliveryInterface.getNextDelivery();

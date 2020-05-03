@@ -8,6 +8,7 @@ import cucumber.runtime.arquillian.CukeSpace;
 import fr.unice.polytech.isa.dd.DeliveryInterface;
 import fr.unice.polytech.isa.dd.DeliverySchedule;
 import fr.unice.polytech.isa.dd.NextDeliveryInterface;
+import fr.unice.polytech.isa.dd.ProviderFinder;
 import fr.unice.polytech.isa.dd.entities.Customer;
 import fr.unice.polytech.isa.dd.entities.Delivery;
 import fr.unice.polytech.isa.dd.entities.Package;
@@ -39,6 +40,7 @@ public class MakingOneDeliveriesTest extends AbstractDeliveryTest implements Fr 
     @EJB(name = "delivery-stateless") private NextDeliveryInterface nextDeliveryInterface;
     @EJB (name = "delivery-stateless") private DeliveryInterface deliveryInterface;
     @EJB(name = "delivery-stateless") private DeliverySchedule deliverySchedule;
+    @EJB(name = "provider-stateless") private ProviderFinder providerFinder;
     @Inject
     private UserTransaction utx;
 
@@ -109,15 +111,15 @@ public class MakingOneDeliveriesTest extends AbstractDeliveryTest implements Fr 
     }
 
     @Et("l'employé demande la prochaine livraison à envoyer")
-    public void lEmployéDemandeLaProchaineLivraisonÀEnvoyer() throws Exception {
+    public void lEmployéDemandeLaProchaineLivraisonÀEnvoyer(){
         deliveries = deliverySchedule.get_deliveries();
-        providers = deliverySchedule.providerList();
+        providers = providerFinder.providerList();
         assertNotNull(nextDeliveryInterface.getNextDelivery());
         providerListHashMap = deliveryInterface.getAllDayDeliveries();
     }
 
     @Et("après il devrait rester (\\d+) livraison")
-    public void aprèsIlDevraitResterLivraison(int arg0) throws Exception {
+    public void aprèsIlDevraitResterLivraison(int arg0){
         assertNotNull(nextDeliveryInterface.getNextDelivery());
         assertNull(nextDeliveryInterface.getNextDelivery());
     }
