@@ -6,14 +6,9 @@ import cucumber.api.java.fr.Alors;
 import cucumber.api.java.fr.Et;
 import cucumber.api.java.fr.Quand;
 import cucumber.runtime.arquillian.CukeSpace;
-import fr.unice.polytech.isa.dd.DeliveryInterface;
-import fr.unice.polytech.isa.dd.DeliverySchedule;
-import fr.unice.polytech.isa.dd.NextDeliveryInterface;
-import fr.unice.polytech.isa.dd.ProviderFinder;
-import fr.unice.polytech.isa.dd.entities.Customer;
-import fr.unice.polytech.isa.dd.entities.Delivery;
+import fr.unice.polytech.isa.dd.*;
+import fr.unice.polytech.isa.dd.entities.*;
 import fr.unice.polytech.isa.dd.entities.Package;
-import fr.unice.polytech.isa.dd.entities.Provider;
 import io.cucumber.java8.Fr;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
@@ -42,6 +37,7 @@ public class MakingTwoDeliveriesArquillianTest extends AbstractDeliveryTest impl
     @EJB (name = "delivery-stateless") private DeliveryInterface deliveryInterface;
     @EJB(name = "delivery-stateless") private DeliverySchedule deliverySchedule;
     @EJB(name = "provider-stateless") private ProviderFinder providerFinder;
+    @EJB(name = "drone-stateless") private DroneStatusInterface droneStatusInterface;
     @Inject
     private UserTransaction utx;
 
@@ -53,10 +49,18 @@ public class MakingTwoDeliveriesArquillianTest extends AbstractDeliveryTest impl
     private Package package2 = new Package();
     private Package package3 = new Package();
     private Package package4 = new Package();
+    private Drone drone1 = new Drone(12,0,"1");
+    private Drone drone2 = new Drone(12,0,"2");
 
     @After
     public void cleanUp() throws HeuristicRollbackException, HeuristicMixedException, RollbackException, SystemException, NotSupportedException {
         utx.begin();
+
+        drone1 = entityManager.merge(drone1);
+        entityManager.remove(drone1);
+        drone2 = entityManager.merge(drone2);
+        entityManager.remove(drone2);
+
         int size = deliverySchedule.get_deliveries().size();
         for(int i = 0; i < size; i++ ){
             Delivery delivery = deliverySchedule.get_deliveries().get(0);
@@ -92,6 +96,11 @@ public class MakingTwoDeliveriesArquillianTest extends AbstractDeliveryTest impl
     public void lentrepriseDoitLivrerColisDeFournisseursDeNomsAGEtPK(int arg0,String arg1,String arg2) {
 
         entityManager.persist(c);
+
+        drone1.addStatut(new DroneStatus(DRONE_STATES.AVAILABLE,"12/12/2020"));
+        entityManager.persist(drone1);
+        drone2.addStatut(new DroneStatus(DRONE_STATES.AVAILABLE,"12/12/2020"));
+        entityManager.persist(drone2);
 
         Provider pro1 = new Provider();
         pro1.setName(arg1);
@@ -158,6 +167,7 @@ public class MakingTwoDeliveriesArquillianTest extends AbstractDeliveryTest impl
         providers = providerFinder.providerList();
         nextDeliveryInterface.getNextDelivery();
         nextDeliveryInterface.getNextDelivery();
+        droneStatusInterface.changeStatus(DRONE_STATES.AVAILABLE,drone1,"17/04/2020","14h00");
         nextDeliveryInterface.getNextDelivery();
 
         providerListHashMap = deliveryInterface.getAllDayDeliveries();

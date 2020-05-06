@@ -5,14 +5,9 @@ import cucumber.api.CucumberOptions;
 import cucumber.api.java.fr.Et;
 import cucumber.api.java.fr.Quand;
 import cucumber.runtime.arquillian.CukeSpace;
-import fr.unice.polytech.isa.dd.DeliveryInterface;
-import fr.unice.polytech.isa.dd.DeliverySchedule;
-import fr.unice.polytech.isa.dd.NextDeliveryInterface;
-import fr.unice.polytech.isa.dd.ProviderFinder;
-import fr.unice.polytech.isa.dd.entities.Customer;
-import fr.unice.polytech.isa.dd.entities.Delivery;
+import fr.unice.polytech.isa.dd.*;
+import fr.unice.polytech.isa.dd.entities.*;
 import fr.unice.polytech.isa.dd.entities.Package;
-import fr.unice.polytech.isa.dd.entities.Provider;
 import io.cucumber.java8.Fr;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
@@ -25,6 +20,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.*;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 
@@ -41,6 +37,7 @@ public class MakingOneDeliveriesTest extends AbstractDeliveryTest implements Fr 
     @EJB (name = "delivery-stateless") private DeliveryInterface deliveryInterface;
     @EJB(name = "delivery-stateless") private DeliverySchedule deliverySchedule;
     @EJB(name = "provider-stateless") private ProviderFinder providerFinder;
+    @EJB(name = "drone-stateless") private DroneStatusInterface droneStatusInterface;
     @Inject
     private UserTransaction utx;
 
@@ -51,11 +48,15 @@ public class MakingOneDeliveriesTest extends AbstractDeliveryTest implements Fr 
     private Customer c = new Customer("Pm", "adresse1");
     private Provider pro1 = new Provider();
     private Package package1 = new Package();
-    Package package2 = new Package();
+    private Package package2 = new Package();
+    private Drone drone = new Drone(12,0,"1");
 
     @After
     public void cleanUp() throws HeuristicRollbackException, HeuristicMixedException, RollbackException, SystemException, NotSupportedException {
         utx.begin();
+        drone = entityManager.merge(drone);
+        entityManager.remove(drone);
+
         int size = deliverySchedule.get_deliveries().size();
         for(int i = 0; i < size; i++ ){
             Delivery delivery = deliverySchedule.get_deliveries().get(0);
@@ -81,6 +82,9 @@ public class MakingOneDeliveriesTest extends AbstractDeliveryTest implements Fr 
     @Quand("Lentreprise doit livrer (\\d+) colis dun seul fournisseur de nom (.*)")
     public void lEntrepriseDoitLivrerColisDUnSeulFournisseurDeNom(int arg0, String arg1) {
         entityManager.persist(c);
+
+        drone.addStatut(new DroneStatus(DRONE_STATES.AVAILABLE,"12/12/2020"));
+        entityManager.persist(drone);
 
         pro1.setName(arg1);
         entityManager.persist(pro1);
@@ -111,16 +115,18 @@ public class MakingOneDeliveriesTest extends AbstractDeliveryTest implements Fr 
     }
 
     @Et("l'employé demande la prochaine livraison à envoyer")
-    public void lEmployéDemandeLaProchaineLivraisonÀEnvoyer(){
+    public void lEmployéDemandeLaProchaineLivraisonÀEnvoyer() throws ParseException {
         deliveries = deliverySchedule.get_deliveries();
         providers = providerFinder.providerList();
         assertNotNull(nextDeliveryInterface.getNextDelivery());
         providerListHashMap = deliveryInterface.getAllDayDeliveries();
+        droneStatusInterface.changeStatus(DRONE_STATES.AVAILABLE,drone,"12/04/2020","12h00");
     }
 
     @Et("après il devrait rester (\\d+) livraison")
-    public void aprèsIlDevraitResterLivraison(int arg0){
+    public void aprèsIlDevraitResterLivraison(int arg0) throws ParseException {
         assertNotNull(nextDeliveryInterface.getNextDelivery());
+        droneStatusInterface.changeStatus(DRONE_STATES.AVAILABLE,drone,"12/04/2020","16h00");
         assertNull(nextDeliveryInterface.getNextDelivery());
     }
 

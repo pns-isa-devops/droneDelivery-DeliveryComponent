@@ -1,9 +1,7 @@
 package arquillian;
 
 import fr.unice.polytech.isa.dd.*;
-import fr.unice.polytech.isa.dd.entities.Customer;
-import fr.unice.polytech.isa.dd.entities.Database;
-import fr.unice.polytech.isa.dd.entities.Delivery;
+import fr.unice.polytech.isa.dd.entities.*;
 import fr.unice.polytech.isa.dd.entities.Package;
 import org.apache.openejb.jee.Web;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -31,12 +29,16 @@ public abstract class AbstractDeliveryTest {
                 .addPackage(NextDeliveryInterface.class.getPackage())
                 .addPackage(DeliveryInterface.class.getPackage())
                 .addPackage(DeliverySchedule.class.getPackage())
+                .addPackage(AvailableDrone.class.getPackage())
+                .addPackage(DroneStatusInterface.class.getPackage())
                 .addPackage(DeliveryBean.class.getPackage())
                 .addPackage(ProviderFinder.class.getPackage())
                 .addPackage(Customer.class.getPackage())
                 .addPackage(Provider.class.getPackage())
                 .addPackage(Database.class.getPackage())
                 .addPackage(Package.class.getPackage())
+                .addPackage(Drone.class.getPackage())
+                .addPackage(DroneStatus.class.getPackage())
                 .addAsManifestResource(new ClassLoaderAsset("META-INF/persistence.xml"), "persistence.xml")
                 ;
     }

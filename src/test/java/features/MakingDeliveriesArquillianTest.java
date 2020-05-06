@@ -8,10 +8,8 @@ import cucumber.api.java.fr.Quand;
 import cucumber.runtime.arquillian.CukeSpace;
 import fr.unice.polytech.isa.dd.DeliverySchedule;
 import fr.unice.polytech.isa.dd.NextDeliveryInterface;
-import fr.unice.polytech.isa.dd.entities.Customer;
-import fr.unice.polytech.isa.dd.entities.Delivery;
+import fr.unice.polytech.isa.dd.entities.*;
 import fr.unice.polytech.isa.dd.entities.Package;
-import fr.unice.polytech.isa.dd.entities.Provider;
 import io.cucumber.java8.Fr;
 import org.jboss.arquillian.transaction.api.annotation.TransactionMode;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
@@ -43,10 +41,14 @@ public class MakingDeliveriesArquillianTest extends AbstractDeliveryTest impleme
     private Customer c = new Customer("Pm", "adresse1");
     private Package package1 = new Package();
     private Provider pro1 = new Provider();
+    private Drone drone = new Drone(12,0,"1");
 
     @After
     public void cleanUp() throws HeuristicRollbackException, HeuristicMixedException, RollbackException, SystemException, NotSupportedException {
         utx.begin();
+        drone = entityManager.merge(drone);
+        entityManager.remove(drone);
+
         Delivery delivery = deliverySchedule.get_deliveries().get(0);
         entityManager.merge(delivery);
         entityManager.remove(delivery);
@@ -78,7 +80,8 @@ public class MakingDeliveriesArquillianTest extends AbstractDeliveryTest impleme
     public void lEntrepriseReçoitUneLivraison() {
 
         entityManager.persist(c);
-
+        drone.addStatut(new DroneStatus(DRONE_STATES.AVAILABLE,"12/12/2020"));
+        entityManager.persist(drone);
 
         pro1.setName("Aug");
         entityManager.persist(pro1);

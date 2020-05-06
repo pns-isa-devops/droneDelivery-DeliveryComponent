@@ -1,8 +1,6 @@
 package fr.unice.polytech.isa.dd;
 
-import fr.unice.polytech.isa.dd.entities.Customer;
-import fr.unice.polytech.isa.dd.entities.Delivery;
-import fr.unice.polytech.isa.dd.entities.Provider;
+import fr.unice.polytech.isa.dd.entities.*;
 import utils.MyDate;
 
 import javax.ejb.EJB;
@@ -25,6 +23,8 @@ public class DeliveryBean implements DeliveryInterface, NextDeliveryInterface, D
 
     @PersistenceContext private EntityManager entityManager;
     @EJB(name = "provider-stateless") private ProviderFinder providerFinder;
+    @EJB(name = "drone-stateless") private AvailableDrone availableDrone;
+    @EJB(name = "drone-stateless") private DroneStatusInterface droneStatusInterface;
 
     HashMap<Provider, List<Delivery>> deliveries_by_provider = new HashMap<>();
 
@@ -55,14 +55,18 @@ public class DeliveryBean implements DeliveryInterface, NextDeliveryInterface, D
     }
 
     @Override
-    public Delivery getNextDelivery(){
+    public Delivery getNextDelivery() throws ParseException{
         List<Delivery> deliveries = all_deliveries_of_today();
-        if(deliveries != null){
-            if (deliveries.size() !=0) {
+        List<Drone> all_available_drones = availableDrone.allDroneAvailable();
+        if(deliveries != null && all_available_drones!= null){
+            if (!deliveries.isEmpty() && !all_available_drones.isEmpty()) {
                 for (Delivery del : deliveries
                 ) {
                     if (!del.getStatus()) {
                         del.setStatus(true);
+                        Drone drone = all_available_drones.get(0);
+                        String hours = MyDate.convertMillisecondInHours(del.getDeliveryBeginTimeInSeconds());
+                        droneStatusInterface.changeStatus(DRONE_STATES.IN_DELIVERING,drone,del.getDeliveryDate(),hours);
                         return del;
                     }
                 }

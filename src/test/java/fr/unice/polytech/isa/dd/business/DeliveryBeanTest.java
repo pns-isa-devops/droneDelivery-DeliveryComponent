@@ -31,6 +31,7 @@ public class DeliveryBeanTest extends AbstractDeliveryTest {
     private EntityManager entityManager;
     @EJB(name = "delivery-stateless") private DeliverySchedule deliverySchedule;
     @EJB(name = "delivery-stateless") private NextDeliveryInterface nextDeliveryInterface;
+    @EJB(name = "drone-stateless") private DroneStatusInterface droneStatusInterface;
     @Inject
     private UserTransaction utx;
 
@@ -39,10 +40,15 @@ public class DeliveryBeanTest extends AbstractDeliveryTest {
     private Provider pro1;
     private Delivery delivery1;
     private Delivery delivery2;
+    private Drone drone = new Drone(12,0,"1");
 
     @After
     public void cleanUp() throws SystemException, NotSupportedException, HeuristicRollbackException, HeuristicMixedException, RollbackException {
         utx.begin();
+
+        drone = entityManager.merge(drone);
+        entityManager.remove(drone);
+
         delivery1 = entityManager.merge(delivery1);
         entityManager.remove(delivery1);
         delivery2 = entityManager.merge(delivery2);
@@ -61,56 +67,11 @@ public class DeliveryBeanTest extends AbstractDeliveryTest {
         utx.commit();
     }
 
-    /*Database database = Database.getInstance();
-
-    @org.junit.Test
-    public void getAllDayDeliveries() {
-
-        database.initializeDatabase();
-        List<Provider> providers;
-        DeliveryBean deliveryBeantest;
-        providers = Database.getInstance().getProviderList();
-        deliveryBeantest = new DeliveryBean();
-        HashMap<Provider,List<Delivery>> alldeliveries = deliveryBeantest.getAllDayDeliveries();
-
-        for(Provider provider : providers){
-            assertEquals(0,alldeliveries.get(provider).size());
-        }
-    }
-
-   @org.junit.Test
-    public void getAllDeliveries() {
-
-        DeliveryBean deliveryBeantest = new DeliveryBean();
-
-        List<Delivery> providers_delivs = deliveryBeantest.getAllDeliveries("1");
-
-        assertEquals(2,providers_delivs.size());
-    }
-
-    @Test
-    public void getNextDelivery(){
-
-        List<Delivery> delivs = Database.getInstance().getDeliveryList();
-
-        DeliveryBean deliveryBeantest = new DeliveryBean();
-        DeliveryBean deliveryBeanTestNull = new DeliveryBean();
-
-        Delivery nextdelivery = deliveryBeanTestNull.getNextDelivery();
-
-        assertNotNull(nextdelivery);
-
-       // delivs.get(0).setStatus(true);
-        nextdelivery = deliveryBeantest.getNextDelivery();
-        assertTrue(delivs.get(1).equals(nextdelivery));
-
-        //delivs.get(1).setStatus(true);
-        nextdelivery = deliveryBeantest.getNextDelivery();
-        assertFalse(delivs.get(1).equals(nextdelivery));
-    }*/
-
     @Test
     public void tesst_with_date() throws Exception {
+
+        drone.addStatut(new DroneStatus(DRONE_STATES.AVAILABLE,"12/12/2020"));
+        entityManager.persist(drone);
 
         MyDate.date_now = "17/04/2020";
 
@@ -141,6 +102,8 @@ public class DeliveryBeanTest extends AbstractDeliveryTest {
 
         assertEquals(2,deliverySchedule.get_deliveries().size());
         assertEquals("17/04/2020",nextDeliveryInterface.getNextDelivery().getDeliveryDate());
+
+        droneStatusInterface.changeStatus(DRONE_STATES.AVAILABLE,drone,"12/04/2020","12h00");
 
         MyDate.date_now = "18/04/2020";
         assertEquals("18/04/2020",nextDeliveryInterface.getNextDelivery().getDeliveryDate());
