@@ -65,9 +65,16 @@ public class DeliveryBean implements DeliveryInterface, NextDeliveryInterface, D
                     if (!del.getStatus()) {
                         del.setStatus(true);
                         Drone drone = all_available_drones.get(0);
+
+                        /* add drone to delivery*/
+                        Delivery delivery1 =  entityManager.find(Delivery.class,del.getId());
+                        delivery1.setDrone(drone);
+                        entityManager.persist(delivery1);
+
+
                         String hours = MyDate.convertMillisecondInHours(del.getDeliveryBeginTimeInSeconds());
                         droneStatusInterface.changeStatus(DRONE_STATES.IN_DELIVERING,drone,del.getDeliveryDate(),hours);
-                        return del;
+                        return delivery1;
                     }
                 }
             }
