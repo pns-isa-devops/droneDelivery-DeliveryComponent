@@ -49,8 +49,8 @@ public class MakingTwoDeliveriesArquillianTest extends AbstractDeliveryTest impl
     private Package package2 = new Package();
     private Package package3 = new Package();
     private Package package4 = new Package();
-    private Drone drone1 = new Drone(12,0,"1");
-    private Drone drone2 = new Drone(12,0,"2");
+    private Drone drone1 = new Drone("1");
+    private Drone drone2 = new Drone("2");
 
     @After
     public void cleanUp() throws HeuristicRollbackException, HeuristicMixedException, RollbackException, SystemException, NotSupportedException {

@@ -49,7 +49,7 @@ public class MakingOneDeliveriesTest extends AbstractDeliveryTest implements Fr 
     private Provider pro1 = new Provider();
     private Package package1 = new Package();
     private Package package2 = new Package();
-    private Drone drone = new Drone(12,0,"1");
+    private Drone drone = new Drone("1");
 
     @After
     public void cleanUp() throws HeuristicRollbackException, HeuristicMixedException, RollbackException, SystemException, NotSupportedException {

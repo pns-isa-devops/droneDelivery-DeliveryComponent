@@ -74,6 +74,7 @@ public class DeliveryBean implements DeliveryInterface, NextDeliveryInterface, D
 
                         String hours = MyDate.convertMillisecondInHours(del.getDeliveryBeginTimeInSeconds());
                         droneStatusInterface.changeStatus(DRONE_STATES.IN_DELIVERING,drone,del.getDeliveryDate(),hours);
+                        droneStatusInterface.UpdtateAttributsDrone(drone,0.45,del.getDeliveryDate(),hours);
                         return delivery1;
                     }
                 }
