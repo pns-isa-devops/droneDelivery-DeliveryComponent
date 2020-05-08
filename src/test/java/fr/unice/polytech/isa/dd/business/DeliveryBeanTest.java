@@ -40,7 +40,7 @@ public class DeliveryBeanTest extends AbstractDeliveryTest {
     private Provider pro1;
     private Delivery delivery1;
     private Delivery delivery2;
-    private Drone drone = new Drone(12,0,"1");
+    private Drone drone = new Drone("1");
 
     @After
     public void cleanUp() throws SystemException, NotSupportedException, HeuristicRollbackException, HeuristicMixedException, RollbackException {
@@ -105,7 +105,12 @@ public class DeliveryBeanTest extends AbstractDeliveryTest {
 
         droneStatusInterface.changeStatus(DRONE_STATES.AVAILABLE,drone,"12/04/2020","12h00");
 
+        droneStatusInterface.UpdtateAttributsDrone(drone,11.7,"14/04/2020","10h00");
+
         MyDate.date_now = "18/04/2020";
+        assertNull("18/04/2020",nextDeliveryInterface.getNextDelivery());
+
+        droneStatusInterface.changeStatus(DRONE_STATES.AVAILABLE,drone,"12/04/2020","12h00");
         assertEquals("18/04/2020",nextDeliveryInterface.getNextDelivery().getDeliveryDate());
     }
 }
