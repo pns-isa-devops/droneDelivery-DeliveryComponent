@@ -1,5 +1,6 @@
 package fr.unice.polytech.isa.dd;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import fr.unice.polytech.isa.dd.entities.Customer;
 import fr.unice.polytech.isa.dd.entities.Delivery;
 import fr.unice.polytech.isa.dd.entities.Provider;
@@ -13,4 +14,5 @@ import java.util.Optional;
 public interface DeliveryInterface {
      HashMap<Provider,List<Delivery>> getAllDayDeliveries();
      List<Delivery> getAllDeliveriesOfAProvider(int provider_id);
+     Boolean deleteAll();
 }

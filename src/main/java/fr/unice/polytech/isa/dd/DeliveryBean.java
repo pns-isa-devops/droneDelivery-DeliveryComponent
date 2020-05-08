@@ -97,6 +97,15 @@ public class DeliveryBean implements DeliveryInterface, NextDeliveryInterface, D
         }
     }
 
+    @Override
+    public Boolean deleteAll() {
+        List<Delivery> allD = get_deliveries();
+        for (Delivery c : allD) {
+            entityManager.remove(c);
+        }
+        return true;
+    }
+
     private List<Delivery> all_deliveries_of_today() {
         if(!get_deliveries().isEmpty()){
             List<Delivery> deliveriesList = get_deliveries();
