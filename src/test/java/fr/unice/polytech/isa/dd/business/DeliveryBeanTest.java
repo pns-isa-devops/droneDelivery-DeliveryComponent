@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.*;
-@RunWith(Arquillian.cla
+@RunWith(Arquillian.class)
 @Transactional(TransactionMode.COMMIT)
 public class DeliveryBeanTest extends AbstractDeliveryTest {
 
